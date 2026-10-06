@@ -1,17 +1,26 @@
-FROM alpine:latest
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache nginx curl unzip bash gettext
+# Устанавливаем все зависимости, включая nginx и инструменты
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl bash ca-certificates nginx gettext-base \
+    && rm -rf /var/lib/apt/lists/*
 
-# Установка x-ui в систему
-RUN curl -L https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh -o /tmp/install.sh && \
-    chmod +x /tmp/install.sh && \
-    echo -e "y\nadmin\nadmin\n54321\n" | /tmp/install.sh && \
-    mv /usr/local/x-ui/x-ui /usr/local/bin/x-ui
+# Скачиваем и распаковываем официальный релиз 3x-ui (без запуска install.sh)
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi && \
+    if [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; fi && \
+    curl -L -o /tmp/x-ui.tar.gz "https://github.com/MHSanaei/3x-ui/releases/latest/download/x-ui-linux-${ARCH}.tar.gz" && \
+    mkdir -p /usr/local/x-ui/ && \
+    tar -zxf /tmp/x-ui.tar.gz -C /usr/local/x-ui/ --strip-components=1 && \
+    rm /tmp/x-ui.tar.gz && \
+    chmod +x /usr/local/x-ui/x-ui && \
+    cp /usr/local/x-ui/x-ui.sh /usr/bin/x-ui
 
-# Копируем конфиг nginx
+# Создаем простой симлинк для nginx
+RUN ln -sf /usr/sbin/nginx /usr/bin/nginx
+
+# Копируем наши конфиги
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
-
-# Копируем скрипт запуска
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
