@@ -1,10 +1,9 @@
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl bash ca-certificates nginx gettext-base \
+    curl bash ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Скачиваем и распаковываем 3x-ui
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi && \
     if [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; fi && \
@@ -12,14 +11,9 @@ RUN ARCH=$(uname -m) && \
     mkdir -p /usr/local/x-ui/ && \
     tar -zxf /tmp/x-ui.tar.gz -C /usr/local/x-ui/ --strip-components=1 && \
     rm /tmp/x-ui.tar.gz && \
-    chmod +x /usr/local/x-ui/x-ui && \
-    cp /usr/local/x-ui/x-ui /usr/bin/x-ui && \
-    chmod +x /usr/bin/x-ui
+    chmod +x /usr/local/x-ui/x-ui
 
-# Копируем конфиги
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-EXPOSE 54321
 CMD ["/start.sh"]
