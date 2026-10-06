@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl bash ca-certificates nginx gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
-# 3x-ui herunterladen und installieren
+# Скачиваем и распаковываем 3x-ui
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi && \
     if [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; fi && \
@@ -16,7 +16,7 @@ RUN ARCH=$(uname -m) && \
     cp /usr/local/x-ui/x-ui /usr/bin/x-ui && \
     chmod +x /usr/bin/x-ui
 
-# Konfigurationsdateien kopieren
+# Копируем конфиги
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
