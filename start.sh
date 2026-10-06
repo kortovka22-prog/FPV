@@ -1,6 +1,8 @@
 #!/bin/bash
 
-envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
-nginx -g "daemon off;" &
+/usr/bin/x-ui &
+sleep 3
 
-/usr/bin/x-ui
+envsubst '${PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+
+nginx -g "daemon off;"
