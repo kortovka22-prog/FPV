@@ -10,17 +10,19 @@ http {
         listen $PORT;
         server_name _;
 
+        # Pfad zum Panel (dieser Pfad wird in der URL verwendet)
         location /x9k2m4p7q1/ {
-           proxy_pass http://127.0.0.1:54321/;
+            proxy_pass http://127.0.0.1:54321/;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
+        # Pfad für den VPN-Traffic (wird von Happ verwendet)
         location /cdn {
             if ($http_upgrade != "websocket") {
                 return 404;
             }
-            proxy_pass http://127.0.0.1:8080;
+            proxy_pass http://127.0.0.1:54321;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection $connection_upgrade;
